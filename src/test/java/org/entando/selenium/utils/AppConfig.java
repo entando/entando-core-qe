@@ -19,13 +19,10 @@ import org.entando.selenium.pages.*;
 import org.openqa.selenium.*;
 //import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.firefox.FirefoxOptions;
-import org.openqa.selenium.opera.OperaDriver;
-import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.CustomScopeConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
@@ -47,21 +44,29 @@ import org.springframework.context.annotation.Scope;*/
  */
 @Configuration
 public class AppConfig {
-    
-    private static final boolean HEADLESS = false;
-    private static final boolean BROWSERSTACK = true;
-    
+
+    @Value("${entando.core.qe.headless:true}")
+    private boolean HEADLESS;
+    @Value("${entando.core.qe.browserstack:false}")
+    private boolean BROWSERSTACK;
+    @Value("${entando.core.qe.appbuilder.url:http://localhost:8080}")
+    private String appBuilderUrl;
+
     
     /**
      * browserstack credentials will be used only if BROWSERSTACK boolean variable is set to true
      */
 
-    private static final String USERNAME = "";
-    private static final String AUTOMATE_KEY = "";
-    private static final String URL = "https://" + USERNAME + ":" + AUTOMATE_KEY + "@hub-cloud.browserstack.com/wd/hub";
-    
-    
-    
+    @Value("${entando.core.qe.browserstack.username:entando}")
+    private String USERNAME;
+    @Value("${entando.core.qe.browserstack.key:entando}")
+    private String AUTOMATE_KEY;
+
+    private String getBrowserStackUrl() {
+        return "https://" + USERNAME + ":" + AUTOMATE_KEY + "@hub-cloud.browserstack.com/wd/hub";
+    }
+
+
     @Bean
     public TestScope testScope() {
         return new TestScope();
@@ -96,7 +101,7 @@ public class AppConfig {
         
         
         if (BROWSERSTACK){
-            WebDriver driver = new RemoteWebDriver(new URL(URL), caps);
+            WebDriver driver = new RemoteWebDriver(new URL(getBrowserStackUrl()), caps);
             driver.manage().window().maximize();
             return driver;
             
@@ -253,7 +258,7 @@ public class AppConfig {
     @Bean
     @Scope("prototype")
     public DTLoginPage dTLoginPage(WebDriver driver){
-        return new DTLoginPage(driver);
+        return new DTLoginPage(driver, appBuilderUrl);
     }
     
     @Bean

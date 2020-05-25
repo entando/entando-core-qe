@@ -39,10 +39,10 @@ public class DTLoginPage extends PageObject {
         this.submitButton.click();
     }
 
-    public DTLoginPage(WebDriver driver) {
+    public DTLoginPage(WebDriver driver, String appBuilderUrl) {
         super(driver);
         //driver.get("http://localhost:3000");
-        driver.get("http://appbuilder.serv.run");
+        driver.get(appBuilderUrl);
         
 	
         
